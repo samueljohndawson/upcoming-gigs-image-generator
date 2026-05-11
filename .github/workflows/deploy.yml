@@ -1,0 +1,151 @@
+name: CI
+
+on:
+  push:
+    branches: ["develop", "main"]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      BRANCH_NAME: ${{ github.ref_name }}
+      # CF_ARTIFACT_BUCKET: ${{ format('songbook-cloudformation-artifacts-{0}', github.ref_name) }}
+      # LAMBDA_ARTIFACT_BUCKET: ${{ format('songbook-lambda-artifacts-{0}', github.ref_name) }}
+      # ALLOWED_ORIGINS: ${{ github.ref_name == 'main' && 'https://app.samdawsonmusic.co.uk' || 'http://localhost:5173' }}
+
+    permissions:
+      id-token: write # required for OIDC
+      contents: read # required for checkout
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (via OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::705892422439:role/GitHubActions_upcoming-gigs-image-generator
+          aws-region: eu-west-2
+
+      # - name: Package CloudFormation templates
+      #   run: |
+      #     aws cloudformation package \
+      #       --template-file cloudformation/root-template.yml \
+      #       --s3-bucket ${{ env.CF_ARTIFACT_BUCKET }} \
+      #       --output-template-file cloudformation/packaged-root-template.yml
+
+      # - name: Install dependencies
+      #   run: |
+      #     npm ci
+      #     cd lambda-songs-table
+      #     npm ci
+      #     cd ../lambda-setlists-table
+      #     npm ci
+      #     cd ../
+
+      # - name: Run tests
+      #   run: |
+      #     npm test
+
+      # - name: Build & Package lambda-songs-table
+      #   run: |
+      #     cd lambda-songs-table
+      #     npm run build
+      #     cd dist
+      #     zip -r ../../songbook-lambda-songs-table-${{ github.sha }}.zip . ../node_modules
+      #     cd ../..
+      #     aws s3 cp songbook-lambda-songs-table-${{ github.sha }}.zip s3://${{ env.LAMBDA_ARTIFACT_BUCKET }}/lambda/songbook-lambda-songs-table-${{ github.sha }}.zip
+
+      # - name: Build & Package lambda-setlists-table
+      #   run: |
+      #     cd lambda-setlists-table
+      #     npm run build
+      #     cd dist
+      #     zip -r ../../songbook-lambda-setlists-table-${{ github.sha }}.zip . ../node_modules
+      #     cd ../..
+      #     aws s3 cp songbook-lambda-setlists-table-${{ github.sha }}.zip s3://${{ env.LAMBDA_ARTIFACT_BUCKET }}/lambda/songbook-lambda-setlists-table-${{ github.sha }}.zip
+
+      # - name: Deploy CloudFormation stack
+      #   run: |
+      #     aws cloudformation deploy \
+      #       --template-file cloudformation/packaged-root-template.yml \
+      #       --stack-name SongbookRootStack-${{ env.BRANCH_NAME }} \
+      #       --parameter-overrides \
+      #         Environment=${{ env.BRANCH_NAME }} \
+      #         LambdaArtifactBucket=${{ env.LAMBDA_ARTIFACT_BUCKET }} \
+      #         SetlistsLambdaCodeS3Key=lambda/songbook-lambda-setlists-table-${{ github.sha }}.zip \
+      #         SongsLambdaCodeS3Key=lambda/songbook-lambda-songs-table-${{ github.sha }}.zip \
+      #         AllowedOrigins="${{ env.ALLOWED_ORIGINS }}" \
+      #       --capabilities CAPABILITY_NAMED_IAM
+
+      # - name: Get Cognito User Pool Info
+      #   id: cognito
+      #   run: |
+      #     # 1. Get Stack ID and save to Environment
+      #     AUTH_ID=$(aws cloudformation describe-stack-resources \
+      #       --stack-name SongbookRootStack-${{ env.BRANCH_NAME }} \
+      #       --query "StackResources[?LogicalResourceId=='CognitoStack'].PhysicalResourceId" \
+      #       --output text)
+
+      #     # 2. Extract specific values using the temporary local variable
+      #     echo "USERPOOL_ID=$(aws cloudformation describe-stacks --stack-name "$AUTH_ID" --query 'Stacks[0].Outputs[?OutputKey==`CognitoUserPoolId`].OutputValue' --output text)" >> $GITHUB_ENV
+      #     echo "CLIENT_ID=$(aws cloudformation describe-stacks --stack-name "$AUTH_ID" --query 'Stacks[0].Outputs[?OutputKey==`CognitoUserPoolClientId`].OutputValue' --output text)" >> $GITHUB_ENV
+      #     echo "COGNITO_DOMAIN=$(aws cloudformation describe-stacks --stack-name "$AUTH_ID" --query 'Stacks[0].Outputs[?OutputKey==`CognitoDomain`].OutputValue' --output text)" >> $GITHUB_ENV
+
+      # - name: Get CloudFront & Frontend Info
+      #   id: frontend_info
+      #   run: |
+      #     FRONTEND_ID=$(aws cloudformation describe-stack-resources \
+      #       --stack-name SongbookRootStack-${{ env.BRANCH_NAME }} \
+      #       --query "StackResources[?LogicalResourceId=='S3FrontEndStack'].PhysicalResourceId" \
+      #       --output text)
+
+      #     CLOUDFRONT_DOMAIN=$(aws cloudformation describe-stacks --stack-name "$FRONTEND_ID" --query 'Stacks[0].Outputs[?OutputKey==`FrontendCloudFrontDistributionDomain`].OutputValue' --output text)
+      #     echo "cloudfront_domain=$CLOUDFRONT_DOMAIN" >> $GITHUB_OUTPUT
+
+      #     # Fetch all three needed values in one go and save to GITHUB_ENV
+      #     echo "CLOUDFRONT_DOMAIN=$CLOUDFRONT_DOMAIN" >> $GITHUB_ENV
+      #     echo "BUCKET=$(aws cloudformation describe-stacks --stack-name "$FRONTEND_ID" --query 'Stacks[0].Outputs[?OutputKey==`FrontendBucketName`].OutputValue' --output text)" >> $GITHUB_ENV
+      #     echo "DIST_ID=$(aws cloudformation describe-stacks --stack-name "$FRONTEND_ID" --query 'Stacks[0].Outputs[?OutputKey==`FrontendCloudFrontDistributionId`].OutputValue' --output text)" >> $GITHUB_ENV
+
+      # - name: Get Lambda Endpoint Info
+      #   run: |
+      #     LAMBDA_STACK_ID=$(aws cloudformation describe-stack-resources \
+      #       --stack-name SongbookRootStack-${{ env.BRANCH_NAME }} \
+      #       --query "StackResources[?LogicalResourceId=='LambdaStack'].PhysicalResourceId" \
+      #       --output text)
+
+      #     # Fetch the Songs Lambda URL from the LambdaStack outputs
+      #     echo "SONGS_URL=$(aws cloudformation describe-stacks --stack-name "$LAMBDA_STACK_ID" --query 'Stacks[0].Outputs[?OutputKey==`SongsFunctionUrl`].OutputValue' --output text)" >> $GITHUB_ENV
+      #     echo "SETLISTS_URL=$(aws cloudformation describe-stacks --stack-name "$LAMBDA_STACK_ID" --query 'Stacks[0].Outputs[?OutputKey==`SetlistsFunctionUrl`].OutputValue' --output text)" >> $GITHUB_ENV
+
+      # - name: Set Vite env variables
+      #   run: |
+      #     echo "VITE_LOGIN_REDIRECT_URI=https://$CLOUDFRONT_DOMAIN" >> $GITHUB_ENV
+      #     echo "VITE_LOGIN_AUTHORITY=https://cognito-idp.eu-west-2.amazonaws.com/$USERPOOL_ID" >> $GITHUB_ENV
+      #     echo "VITE_LOGIN_CLIENT_ID=$CLIENT_ID" >> $GITHUB_ENV
+      #     echo "VITE_COGNITO_DOMAIN=$COGNITO_DOMAIN" >> $GITHUB_ENV
+      #     echo "VITE_SONGS_ENDPOINT=$SONGS_URL" >> $GITHUB_ENV
+      #     echo "VITE_SETLISTS_ENDPOINT=$SETLISTS_URL" >> $GITHUB_ENV
+
+      # - name: Build Frontend
+      #   run: |
+      #     cd songbook-fe
+      #     npm ci
+      #     npm run build
+
+      # - name: Deploy Frontend to S3
+      #   run: |
+      #     # Use the BUCKET variable set in the frontend_info step
+      #     aws s3 sync songbook-fe/dist/ s3://$BUCKET --delete
+
+      # - name: Invalidate CloudFront
+      #   run: |
+      #     # Use the DIST_ID variable set in the frontend_info step
+      #     aws cloudfront create-invalidation \
+      #       --distribution-id $DIST_ID \
+      #       --paths "/*"
