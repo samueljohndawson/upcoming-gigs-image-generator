@@ -5,7 +5,8 @@ import App from "./App.tsx";
 import { createTheme, MantineProvider } from "@mantine/core";
 
 const theme = createTheme({
-  /** Put your mantine theme override here */
+  fontFamily: "Roboto, sans-serif",
+  fontFamilyMonospace: "monospace",
 });
 
 createRoot(document.getElementById("root")!).render(
