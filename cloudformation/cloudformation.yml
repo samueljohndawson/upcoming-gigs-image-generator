@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: S3 Bucket for Upcoming Gigs Image Generator
+
+Parameters:
+  Environment:
+    Type: String
+    Description: "Deployment environment (e.g., dev, prod)"
+
+Resources:
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Delete
+    Properties:
+      BucketName: !Sub "upcoming-gigs-image-generator-${Environment}-${AWS::AccountId}"
+
+Outputs:
+  BucketName:
+    Value: !Ref FrontendBucket
