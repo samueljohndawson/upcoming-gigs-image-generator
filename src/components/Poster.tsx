@@ -119,15 +119,18 @@ export const Poster = () => {
 
               const day = new Intl.DateTimeFormat("en-GB", {
                 day: "2-digit",
+                timeZone: "Europe/London",
               }).format(date);
 
               const month = new Intl.DateTimeFormat("en-GB", {
                 month: "short",
+                timeZone: "Europe/London",
               }).format(date);
 
               const time = new Intl.DateTimeFormat("en-GB", {
                 hour: "numeric",
                 minute: "2-digit",
+                timeZone: "Europe/London",
               }).format(date);
 
               return (
