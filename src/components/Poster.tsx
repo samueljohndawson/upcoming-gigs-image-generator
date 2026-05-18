@@ -13,7 +13,7 @@ type TransformedEvent = {
 };
 
 export const Poster = () => {
-  const API_KEY = "AIzaSyAQ2JTzP28JSXnDl2Jmy4a_9tBqPim_pvo";
+  const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
   const [events, setEvents] = useState<TransformedEvent[] | undefined>(
     undefined,
   );
@@ -35,7 +35,7 @@ export const Poster = () => {
       setEvents(events);
     };
     fetchEvents();
-  }, []);
+  }, [API_KEY]);
 
   return (
     // OUTER PREVIEW STAGE (centres your story on desktop)
