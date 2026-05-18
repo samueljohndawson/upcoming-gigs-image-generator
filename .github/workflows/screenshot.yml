@@ -20,6 +20,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Debug Variable Presence
+        run: |
+          echo "Length of account ID variable: ${#VAR_CHECK}"
+        env:
+          VAR_CHECK: ${{ vars.AWS_ACCOUNT_ID }}
+
       - name: Configure AWS credentials (via OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
