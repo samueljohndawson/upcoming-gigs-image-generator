@@ -1,6 +1,6 @@
-import { Poster } from "./components/Poster";
+import { UpcomingGigs } from "./components/UpcomingGigs";
 import "@mantine/core/styles.css";
 
 export default function App() {
-  return <Poster />;
+  return <UpcomingGigs />;
 }

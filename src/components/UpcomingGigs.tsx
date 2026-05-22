@@ -12,7 +12,7 @@ type TransformedEvent = {
   startTime: string;
 };
 
-export const Poster = () => {
+export const UpcomingGigs = () => {
   const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
   const [events, setEvents] = useState<TransformedEvent[] | undefined>(
     undefined,
