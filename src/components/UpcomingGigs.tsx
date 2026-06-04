@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 type GoogleCalEvent = {
   summary: string;
-  start: { dateTime: string } | { date: string };
+  start: { dateTime: string };
 };
 
 type TransformedEvent = {
@@ -31,13 +31,13 @@ export const UpcomingGigs = () => {
           return {
             venue: "Private Booking",
             city: "",
-            startTime: item.start.date || item.start.dateTime,
+            startTime: "",
           };
         }
         return {
           venue: item.summary.split(" - ")[0],
           city: item.summary.split(" - ")[1],
-          startTime: item.start.dateTime || item.start.date,
+          startTime: item.start.dateTime,
         };
       });
       setEvents(events);
