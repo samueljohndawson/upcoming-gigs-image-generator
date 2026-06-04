@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 type GoogleCalEvent = {
   summary: string;
-  start: { dateTime: string };
+  start: { dateTime: string } | { date: string };
 };
 
 type TransformedEvent = {
@@ -25,11 +25,19 @@ export const UpcomingGigs = () => {
         `https://www.googleapis.com/calendar/v3/calendars/f71a45cb3ffe6e9883d82e3b0024b893e64bd816c875ea56077920ab8e10d878@group.calendar.google.com/events?key=${API_KEY}&maxResults=4&fields=items(summary,start)&singleEvents=true&orderBy=startTime&timeMin=${timeNow}`,
       );
       const data = await response.json();
+      console.log(data);
       const events = data.items.map((item: GoogleCalEvent) => {
+        if (item.summary.toLowerCase() === "private booking") {
+          return {
+            venue: "Private Booking",
+            city: "",
+            startTime: item.start.date || item.start.dateTime,
+          };
+        }
         return {
           venue: item.summary.split(" - ")[0],
           city: item.summary.split(" - ")[1],
-          startTime: item.start.dateTime,
+          startTime: item.start.dateTime || item.start.date,
         };
       });
       setEvents(events);
