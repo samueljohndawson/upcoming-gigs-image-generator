@@ -95,7 +95,7 @@ jobs:
 
           # Added --fail, --show-error, and removed silent execution to pinpoint request errors
           curl --fail --show-error -H "Authorization: Bearer $ACCESS_TOKEN" \
-            "https://mybusinessbusinessinformation.googleapis.com/v1/accounts/${{ secrets.GOOGLE_ACCOUNT_ID }}/locations/${{ secrets.GOOGLE_LOCATION_ID }}/reviews" \
+            "https://mybusiness.googleapis.com/v4/accounts/${{ secrets.GOOGLE_ACCOUNT_ID }}/locations/${{ secrets.GOOGLE_LOCATION_ID }}/reviews" \
             > src/data/reviews.json
             
           echo "=== DEBUG: Review File Contents ==="
