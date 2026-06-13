@@ -1,0 +1,16 @@
+{
+  "reviews": [
+    {
+      "name": "James",
+      "reviewId": "3",
+      "reviewer": {
+        "displayName": "James",
+        "profilePhotoUrl": "https://static.vecteezy.com/system/resources/thumbnails/032/176/197/small/business-avatar-profile-black-icon-man-of-user-symbol-in-trendy-flat-style-isolated-on-male-profile-people-diverse-face-for-social-network-or-web-vector.jpg"
+      },
+      "starRating": "ONE",
+      "comment": "string",
+      "createTime": "string",
+      "updateTime": "string"
+    }
+  ]
+}

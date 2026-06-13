@@ -1,6 +1,16 @@
+import { LatestReview } from "./components/LatestReview";
 import { UpcomingGigs } from "./components/UpcomingGigs";
-import "@mantine/core/styles.css";
 
 export default function App() {
-  return <UpcomingGigs />;
+  const urlParams = new URLSearchParams(window.location.search);
+  const posterType = urlParams.get("poster");
+
+  switch (posterType) {
+    case "review":
+      return <LatestReview />;
+
+    case "gigs":
+    default:
+      return <UpcomingGigs />;
+  }
 }

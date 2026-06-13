@@ -15,23 +15,37 @@ const run = async () => {
     deviceScaleFactor: 2, // makes it crisp (important!)
   });
 
-  const url = process.env.SCREENSHOT_URL ?? "http://localhost:5173";
-  await page.goto(url, {
+  const posterType = process.env.SCREENSHOT_TYPE ?? "gigs";
+  const baseUrl = process.env.SCREENSHOT_URL ?? "http://localhost:5173";
+
+  const targetUrl = `${baseUrl}/?poster=${posterType}`;
+
+  console.log(`Navigating to target canvas: ${targetUrl}`);
+
+  await page.goto(targetUrl, {
     waitUntil: "networkidle0",
   });
 
-  // Wait for your poster to render (important for fonts/images)
+  // Wait for poster to render (important for fonts/images)
   const poster = await page.$(".poster");
 
   await page.waitForFunction('document.fonts.status === "loaded"');
 
-  // Optional: wait a bit for background/image/fonts
   await new Promise((r) => setTimeout(r, 1000));
 
-  await poster?.screenshot({
-    path: "poster.png",
-    fullPage: false,
-  });
+  const outputFileName = `${posterType}-poster.png`;
+
+  if (poster) {
+    await poster.screenshot({
+      path: outputFileName,
+      fullPage: false,
+    });
+    console.log(`Successfully saved snapped card to: ${outputFileName}`);
+  } else {
+    console.error(
+      "Critical Failure: Could not find the '.poster' DOM target container.",
+    );
+  }
 
   await browser.close();
 };
