@@ -74,20 +74,33 @@ jobs:
       - name: Fetch Google Business Reviews
         run: |
           echo "Exchanging Refresh Token for short-lived Access Token..."
-          ACCESS_TOKEN=$(curl -s -X POST "https://oauth2.googleapis.com/token" \
+          # Removed silent flag to catch any token generation errors
+          TOKEN_RESPONSE=$(curl -X POST "https://oauth2.googleapis.com/token" \
             -d "client_id=${{ secrets.GOOGLE_CLIENT_ID }}" \
             -d "client_secret=${{ secrets.GOOGLE_CLIENT_SECRET }}" \
             -d "refresh_token=${{ secrets.GOOGLE_OAUTH_REFRESH_TOKEN }}" \
-            -d "grant_type=refresh_token" | jq -r '.access_token')
+            -d "grant_type=refresh_token")
+
+          ACCESS_TOKEN=$(echo $TOKEN_RESPONSE | jq -r '.access_token')
+
+          # Failsafe: if the access token failed to generate, stop here and print why
+          if [ "$ACCESS_TOKEN" = "null" ] || [ -z "$ACCESS_TOKEN" ]; then
+            echo "Critical Error: Failed to generate access token!"
+            echo "Google Response: $TOKEN_RESPONSE"
+            exit 1
+          fi
 
           echo "Fetching reviews from Google My Business API..."
           mkdir -p src/data
 
-          curl -s -H "Authorization: Bearer $ACCESS_TOKEN" \
+          # Added --fail, --show-error, and removed silent execution to pinpoint request errors
+          curl --fail --show-error -H "Authorization: Bearer $ACCESS_TOKEN" \
             "https://mybusinessbusinessinformation.googleapis.com/v1/accounts/${{ secrets.GOOGLE_ACCOUNT_ID }}/locations/${{ secrets.GOOGLE_LOCATION_ID }}/reviews" \
             > src/data/reviews.json
             
-          echo "Successfully updated static reviews snapshot."
+          echo "=== DEBUG: Review File Contents ==="
+          cat src/data/reviews.json
+          echo "==================================="
 
       - name: Build
         run: npm run build
