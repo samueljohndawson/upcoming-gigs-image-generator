@@ -11,7 +11,7 @@ type GBPReview = {
   name: string;
   reviewId: string;
   reviewer: Reviewer;
-  starRating: "ONE" | "TWO" | "THREE" | "FOUR" | "FIVE";
+  starRating: string;
   comment?: string;
   createTime: string;
   updateTime?: string;
