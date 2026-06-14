@@ -15,6 +15,8 @@ type TransformedEvent = {
   startTime: string;
 };
 
+const PRIVATE_BOOKING = "Private Booking";
+
 export const UpcomingGigs = () => {
   const API_KEY = import.meta.env.VITE_GOOGLE_API_KEY;
   const [events, setEvents] = useState<TransformedEvent[] | undefined>(
@@ -42,11 +44,11 @@ export const UpcomingGigs = () => {
               return null;
             }
 
-            if (item.summary.toLowerCase() === "private booking") {
+            if (item.summary.toLowerCase() === PRIVATE_BOOKING.toLowerCase()) {
               return {
-                venue: "Private Booking",
+                venue: PRIVATE_BOOKING,
                 city: "",
-                startTime: "",
+                startTime: startValue,
               };
             }
 
@@ -230,7 +232,7 @@ export const UpcomingGigs = () => {
                         fontWeight: 600,
                       }}
                     >
-                      {time}
+                      {event.venue === PRIVATE_BOOKING ? "" : time}
                     </Text>
                   </Group>
                 </Card>
