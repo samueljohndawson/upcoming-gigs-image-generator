@@ -20,32 +20,6 @@ const run = async () => {
 
   const targetUrl = `${baseUrl}/?poster=${posterType}`;
 
-  page.on("console", async (message) => {
-    const args = await Promise.all(
-      message.args().map(async (arg) => {
-        try {
-          return await arg.jsonValue();
-        } catch {
-          return String(arg);
-        }
-      }),
-    );
-
-    console.log(
-      `[PAGE LOG] ${message.type()}: ${message.text()} ${
-        args.length ? JSON.stringify(args) : ""
-      }`,
-    );
-  });
-  page.on("pageerror", (error) => {
-    console.error(`[PAGE ERROR] ${String(error)}`);
-  });
-  page.on("response", (response) => {
-    if (response.status() >= 400) {
-      console.warn(`[PAGE RESPONSE] ${response.status()} ${response.url()}`);
-    }
-  });
-
   console.log(`Navigating to target canvas: ${targetUrl}`);
 
   await page.goto(targetUrl, {

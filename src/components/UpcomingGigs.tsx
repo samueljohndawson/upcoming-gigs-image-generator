@@ -29,23 +29,16 @@ export const UpcomingGigs = () => {
           `https://www.googleapis.com/calendar/v3/calendars/f71a45cb3ffe6e9883d82e3b0024b893e64bd816c875ea56077920ab8e10d878@group.calendar.google.com/events?key=${API_KEY}&maxResults=4&fields=items(summary,start)&singleEvents=true&orderBy=startTime&timeMin=${timeNow}`,
         );
         const data = await response.json();
-        console.log("Calendar response:", data);
-
         const items: GoogleCalEvent[] = data.items || [];
         const events = items
           .map((item) => {
             const startValue = item.start?.dateTime ?? item.start?.date;
             if (!startValue) {
-              console.warn("Skipping calendar item with no start value", item);
               return null;
             }
 
             const parsedDate = new Date(startValue);
             if (Number.isNaN(parsedDate.getTime())) {
-              console.warn(
-                "Skipping calendar item with invalid start date",
-                item,
-              );
               return null;
             }
 
@@ -53,7 +46,7 @@ export const UpcomingGigs = () => {
               return {
                 venue: "Private Booking",
                 city: "",
-                startTime: startValue,
+                startTime: "",
               };
             }
 
