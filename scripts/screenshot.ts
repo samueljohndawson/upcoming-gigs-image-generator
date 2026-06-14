@@ -27,8 +27,8 @@ const run = async () => {
   });
 
   // Wait for poster to render (important for fonts/images)
+  await page.waitForSelector(".poster", { visible: true, timeout: 30000 });
   const poster = await page.$(".poster");
-
   await page.waitForFunction('document.fonts.status === "loaded"');
 
   await new Promise((r) => setTimeout(r, 1000));
