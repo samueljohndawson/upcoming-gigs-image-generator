@@ -17,6 +17,39 @@ type GBPReview = {
   updateTime?: string;
 };
 
+const getInitials = (name: string) => {
+  return name
+    .split(" ")
+    .map((word) => word.charAt(0))
+    .join("")
+    .toUpperCase()
+    .slice(0, 2); // Ensures a max of 2 characters (e.g., "John Doe" -> "JD")
+};
+
+const getThemeColorByName = (name: string): string => {
+  const colors = [
+    "blue",
+    "cyan",
+    "grape",
+    "indigo",
+    "orange",
+    "pink",
+    "red",
+    "teal",
+    "violet",
+  ];
+
+  // Calculate a basic hash code from the string
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+
+  // Use the hash to pick an index from the array
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
+};
+
 export const LatestReview = () => {
   const reviews: GBPReview[] = gbpData.reviews || [];
 
@@ -150,10 +183,15 @@ export const LatestReview = () => {
                   <Avatar
                     size={64}
                     radius="xl"
-                    src={latestReview.reviewer.profilePhotoUrl}
+                    // src={latestReview.reviewer.profilePhotoUrl}
                     alt={latestReview.reviewer.displayName}
                     style={{ border: "2px solid rgba(255,255,255,0.8)" }}
-                  />
+                    color={getThemeColorByName(
+                      latestReview.reviewer.displayName || "User",
+                    )}
+                  >
+                    {getInitials(latestReview.reviewer.displayName || "User")}
+                  </Avatar>
                 )}
 
                 <Box>
