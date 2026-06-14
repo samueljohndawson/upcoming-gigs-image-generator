@@ -20,6 +20,20 @@ const run = async () => {
 
   const targetUrl = `${baseUrl}/?poster=${posterType}`;
 
+  page.on("console", (message) => {
+    console.log(`[PAGE LOG] ${message.type()}: ${message.text()}`);
+  });
+  page.on("pageerror", (error) => {
+    console.error(`[PAGE ERROR] ${String(error)}`);
+  });
+  page.on("response", (response) => {
+    if (response.status() >= 400) {
+      console.warn(
+        `[PAGE RESPONSE] ${response.status()} ${response.url()}`,
+      );
+    }
+  });
+
   console.log(`Navigating to target canvas: ${targetUrl}`);
 
   await page.goto(targetUrl, {
@@ -27,9 +41,14 @@ const run = async () => {
   });
 
   // Wait for poster to render (important for fonts/images)
-  await page.waitForSelector(".poster", { visible: true, timeout: 30000 });
-  const poster = await page.$(".poster");
-  await page.waitForFunction('document.fonts.status === "loaded"');
+  const poster = await page.waitForSelector(".poster", {
+    visible: true,
+    timeout: 45000,
+  });
+  await page.waitForFunction(
+    'document.fonts.status === "loaded"',
+    { timeout: 30000 },
+  );
 
   await new Promise((r) => setTimeout(r, 1000));
 
