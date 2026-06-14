@@ -3,7 +3,10 @@ import { useEffect, useState } from "react";
 
 type GoogleCalEvent = {
   summary: string;
-  start: { dateTime: string };
+  start: {
+    dateTime?: string;
+    date?: string;
+  };
 };
 
 type TransformedEvent = {
@@ -21,26 +24,52 @@ export const UpcomingGigs = () => {
   useEffect(() => {
     const timeNow = new Date().toISOString();
     const fetchEvents = async () => {
-      const response = await fetch(
-        `https://www.googleapis.com/calendar/v3/calendars/f71a45cb3ffe6e9883d82e3b0024b893e64bd816c875ea56077920ab8e10d878@group.calendar.google.com/events?key=${API_KEY}&maxResults=4&fields=items(summary,start)&singleEvents=true&orderBy=startTime&timeMin=${timeNow}`,
-      );
-      const data = await response.json();
-      console.log(data);
-      const events = data.items.map((item: GoogleCalEvent) => {
-        if (item.summary.toLowerCase() === "private booking") {
-          return {
-            venue: "Private Booking",
-            city: "",
-            startTime: "",
-          };
-        }
-        return {
-          venue: item.summary.split(" - ")[0],
-          city: item.summary.split(" - ")[1],
-          startTime: item.start.dateTime,
-        };
-      });
-      setEvents(events);
+      try {
+        const response = await fetch(
+          `https://www.googleapis.com/calendar/v3/calendars/f71a45cb3ffe6e9883d82e3b0024b893e64bd816c875ea56077920ab8e10d878@group.calendar.google.com/events?key=${API_KEY}&maxResults=4&fields=items(summary,start)&singleEvents=true&orderBy=startTime&timeMin=${timeNow}`,
+        );
+        const data = await response.json();
+        console.log("Calendar response:", data);
+
+        const items: GoogleCalEvent[] = data.items || [];
+        const events = items
+          .map((item) => {
+            const startValue = item.start?.dateTime ?? item.start?.date;
+            if (!startValue) {
+              console.warn("Skipping calendar item with no start value", item);
+              return null;
+            }
+
+            const parsedDate = new Date(startValue);
+            if (Number.isNaN(parsedDate.getTime())) {
+              console.warn(
+                "Skipping calendar item with invalid start date",
+                item,
+              );
+              return null;
+            }
+
+            if (item.summary.toLowerCase() === "private booking") {
+              return {
+                venue: "Private Booking",
+                city: "",
+                startTime: startValue,
+              };
+            }
+
+            return {
+              venue: item.summary.split(" - ")[0],
+              city: item.summary.split(" - ")[1] ?? "",
+              startTime: startValue,
+            };
+          })
+          .filter((event): event is TransformedEvent => event !== null);
+
+        setEvents(events);
+      } catch (error) {
+        console.error("Failed to fetch calendar events", error);
+        setEvents([]);
+      }
     };
     fetchEvents();
   }, [API_KEY]);

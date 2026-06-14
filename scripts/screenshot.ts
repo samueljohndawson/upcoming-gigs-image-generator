@@ -20,17 +20,29 @@ const run = async () => {
 
   const targetUrl = `${baseUrl}/?poster=${posterType}`;
 
-  page.on("console", (message) => {
-    console.log(`[PAGE LOG] ${message.type()}: ${message.text()}`);
+  page.on("console", async (message) => {
+    const args = await Promise.all(
+      message.args().map(async (arg) => {
+        try {
+          return await arg.jsonValue();
+        } catch {
+          return String(arg);
+        }
+      }),
+    );
+
+    console.log(
+      `[PAGE LOG] ${message.type()}: ${message.text()} ${
+        args.length ? JSON.stringify(args) : ""
+      }`,
+    );
   });
   page.on("pageerror", (error) => {
     console.error(`[PAGE ERROR] ${String(error)}`);
   });
   page.on("response", (response) => {
     if (response.status() >= 400) {
-      console.warn(
-        `[PAGE RESPONSE] ${response.status()} ${response.url()}`,
-      );
+      console.warn(`[PAGE RESPONSE] ${response.status()} ${response.url()}`);
     }
   });
 
@@ -45,10 +57,9 @@ const run = async () => {
     visible: true,
     timeout: 45000,
   });
-  await page.waitForFunction(
-    'document.fonts.status === "loaded"',
-    { timeout: 30000 },
-  );
+  await page.waitForFunction('document.fonts.status === "loaded"', {
+    timeout: 30000,
+  });
 
   await new Promise((r) => setTimeout(r, 1000));
 
