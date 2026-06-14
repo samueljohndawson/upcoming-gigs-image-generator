@@ -100,7 +100,7 @@ export const UpcomingGigs = () => {
             flexDirection: "column",
             gap: 24,
             background:
-              "linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.55)), url(/background.jpg)",
+              "linear-gradient(to bottom, rgba(0,0,0,0.35), rgba(0,0,0,0.55)), url(/gigs/default-background.jpg)",
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}

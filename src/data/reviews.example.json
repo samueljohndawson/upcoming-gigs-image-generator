@@ -1,0 +1,21 @@
+{
+  "reviews": [
+    {
+      "reviewId": "AbFvOqn-zhtKzA8A-K4NfMN--iHK43e9NZizYgNvHXZ_5xI2SOK13MdN4AU51SxRxsrdCDqPFBBF",
+      "reviewer": {
+        "profilePhotoUrl": "https://lh3.googleusercontent.com/a/ACg8ocJSCxC3ievyS8ktSfd4zf4smBAh69sE_qc9zzU0mGzJFz1L8g=s120-c-rp-mo-br100",
+        "displayName": "Cheryl Bowers"
+      },
+      "starRating": "FIVE",
+      "comment": "Sam performed 2 spots at my retirement party last night.\nHe sounded brilliant and the song  choices were spot on.\nThank you Sam; everyone loved your performances and had a great night.\nHighly recommend\nCheryl Bowers",
+      "createTime": "2026-06-06T22:20:27.131306Z",
+      "updateTime": "2026-06-06T22:20:27.131306Z",
+      "reviewReply": {
+        "comment": "Thank you Cheryl! \nAll the best x",
+        "updateTime": "2026-06-07T10:18:37.300909Z",
+        "reviewReplyState": "APPROVED"
+      },
+      "name": "accounts/***/locations/***/reviews/AbFvOqn-zhtKzA8A-K4NfMN--iHK43e9NZizYgNvHXZ_5xI2SOK13MdN4AU51SxRxsrdCDqPFBBF"
+    }
+  ]
+}

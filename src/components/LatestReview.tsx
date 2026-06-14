@@ -20,7 +20,7 @@ type GBPReview = {
 export const LatestReview = () => {
   const reviews: GBPReview[] = gbpData.reviews || [];
 
-  // Sort by createTime descending to isolate the absolute latest feedback item
+  // Sort by createTime descending to isolate the absolute latest review item
   const latestReview = [...reviews].sort(
     (a, b) =>
       new Date(b.createTime).getTime() - new Date(a.createTime).getTime(),
@@ -38,7 +38,7 @@ export const LatestReview = () => {
           alignItems: "center",
         }}
       >
-        <Text color="white">No performance reviews found.</Text>
+        <Text color="white">No reviews found just yet.</Text>
       </Box>
     );
   }
@@ -52,6 +52,17 @@ export const LatestReview = () => {
     FIVE: "★★★★★",
   };
   const starDisplay = starMap[latestReview.starRating] || "★★★★★";
+
+  // Clean format for the review date (e.g., "October 24, 2025")
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(latestReview.createTime));
+
+  const backgroundUrl = latestReview.comment?.toLowerCase().includes("wedding")
+    ? "/reviews/wedding-background.jpg"
+    : "/reviews/party-background.jpg";
 
   return (
     // OUTER PREVIEW STAGE (Centres your square poster layout on desktop preview windows)
@@ -85,8 +96,7 @@ export const LatestReview = () => {
             flexDirection: "column",
             justifyContent: "space-between", // Pushes content evenly into top/middle/bottom zones
             gap: 20,
-            background:
-              "linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(/background.jpg)",
+            background: `linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url(${backgroundUrl})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
           }}
@@ -102,7 +112,7 @@ export const LatestReview = () => {
                 textTransform: "uppercase",
               }}
             >
-              Recent Wedding Feedback
+              Recent Feedback
             </Text>
 
             <Title
@@ -117,7 +127,7 @@ export const LatestReview = () => {
                 textShadow: "0 6px 25px rgba(0,0,0,0.6)",
               }}
             >
-              CLIENT REVIEWS
+              WHAT PEOPLE SAY
             </Title>
           </Box>
 
@@ -135,22 +145,25 @@ export const LatestReview = () => {
               }}
             >
               <Stack gap={12} align="center" style={{ textAlign: "center" }}>
-                {/* USER PHOTO IMAGE */}
-                <Avatar
-                  size={64}
-                  radius="xl"
-                  src={latestReview.reviewer.profilePhotoUrl}
-                  alt={latestReview.reviewer.displayName}
-                  style={{ border: "2px solid rgba(255,255,255,0.8)" }}
-                  // imgProps={{ referrerPolicy: "no-referrer" }} // Prevents broken avatars via cross-domain tokens
-                />
+                {/* USER PHOTO IMAGE - Only renders if present */}
+                {latestReview.reviewer.profilePhotoUrl && (
+                  <Avatar
+                    size={64}
+                    radius="xl"
+                    src={latestReview.reviewer.profilePhotoUrl}
+                    alt={latestReview.reviewer.displayName}
+                    style={{ border: "2px solid rgba(255,255,255,0.8)" }}
+                  />
+                )}
 
                 <Box>
+                  {/* REVIEWER NAME (Handwriting style applied) */}
                   <Text
                     style={{
                       color: "white",
-                      fontSize: 16,
-                      fontWeight: 800,
+                      fontSize: 24, // Bumped slightly as handwriting fonts usually look smaller
+                      fontFamily: "Euphoria Script, cursive",
+                      fontWeight: 500,
                       lineHeight: 1.2,
                     }}
                   >
@@ -168,9 +181,21 @@ export const LatestReview = () => {
                   >
                     {starDisplay}
                   </Text>
+
+                  {/* REVIEW DATE */}
+                  <Text
+                    style={{
+                      color: "rgba(255,255,255,0.5)",
+                      fontSize: 10,
+                      fontWeight: 500,
+                      marginTop: 4,
+                    }}
+                  >
+                    {formattedDate}
+                  </Text>
                 </Box>
 
-                {/* WEDDING CLIENT PERFORMANCE COMMENT */}
+                {/* REVIEW COMMENT */}
                 <Text
                   style={{
                     color: "rgba(255,255,255,0.95)",
@@ -199,7 +224,7 @@ export const LatestReview = () => {
                 lineHeight: 1,
               }}
             >
-              Live Music & Acoustic Performances
+              Sam Dawson
             </Text>
 
             <Text
@@ -212,7 +237,7 @@ export const LatestReview = () => {
                 marginTop: 4,
               }}
             >
-              Weddings • Corporate • Private Events
+              Live • Acoustic • Music
             </Text>
           </Box>
         </Box>
